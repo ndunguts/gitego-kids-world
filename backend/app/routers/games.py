@@ -215,8 +215,8 @@ def get_published_game_play_bundle(game_id: int, db: Session = Depends(get_db)):
         display: none;
         position: fixed;
         right: 8px;
-        bottom: 44px;
-        z-index: 25;
+        bottom: 48px;
+        z-index: 9000;
         flex-direction: column;
         gap: 6px;
         align-items: flex-end;
@@ -226,16 +226,16 @@ def get_published_game_play_bundle(game_id: int, db: Session = Depends(get_db)):
         display: none;
         position: fixed;
         left: 8px;
-        bottom: 44px;
-        z-index: 25;
-        grid-template-columns: repeat(3, 38px);
-        grid-template-rows: repeat(3, 38px);
+        bottom: 48px;
+        z-index: 9000;
+        grid-template-columns: repeat(3, 40px);
+        grid-template-rows: repeat(3, 40px);
         gap: 4px;
         pointer-events: none;
       }
-      @media (pointer: coarse), (max-width: 900px) {
-        .gitego-touch-hud.active:not(.hidden-by-ui) { display: flex; }
-        .gitego-dpad.active:not(.hidden-by-ui) { display: grid; }
+      .gitego-touch-hud.active:not(.hidden-by-ui) { display: flex !important; }
+      .gitego-dpad.active:not(.hidden-by-ui) { display: grid !important; }
+      @media (pointer: coarse), (max-width: 1024px) {
         /* Keep game HUD bars & quick controls completely clear of touch controls */
         #lockMouseBtn { display: none !important; }
         .gta-bars-dock {
@@ -384,6 +384,7 @@ def get_published_game_play_bundle(game_id: int, db: Session = Depends(get_db)):
             tbRight.appendChild(toggleBtn);
           }
           syncTouchVisibility();
+          setInterval(syncTouchVisibility, 350);
           hud.querySelector('#gt-scope').addEventListener('pointerdown', (e) => {
             e.stopPropagation();
             const sb = document.getElementById('scopeBtn');
