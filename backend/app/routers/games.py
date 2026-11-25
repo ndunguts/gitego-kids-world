@@ -187,25 +187,114 @@ def get_published_game_play_bundle(game_id: int, db: Session = Depends(get_db)):
           min-height: 0 !important;
           width: 100% !important;
         }
+        /* Gitego Piano mobile fix: stack single-column & put playable piano on top */
+        body:has(.piano-app) {
+          padding: 4px !important;
+          overflow-y: auto !important;
+          height: auto !important;
+          min-height: 100dvh !important;
+        }
+        .piano-app {
+          grid-template-columns: 1fr !important;
+          height: auto !important;
+          min-height: 0 !important;
+          gap: 8px !important;
+        }
+        .piano-app > :not(.piano-sidebar) {
+          order: -1 !important;
+          min-height: 58dvh !important;
+        }
+        .piano-sidebar {
+          max-height: 36dvh !important;
+          overflow-y: auto !important;
+          padding: 10px !important;
+        }
+      }
+      /* Mobile Touch Controls for 3D Sniper / Shooter games */
+      .gitego-touch-hud {
+        display: none;
+        position: fixed;
+        right: 12px;
+        bottom: 14px;
+        z-index: 9999;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-end;
+      }
+      @media (pointer: coarse), (max-width: 900px) {
+        .gitego-touch-hud.active { display: flex; }
+      }
+      .gitego-tbtn {
+        border: 2px solid rgba(255,255,255,0.4);
+        border-radius: 999px;
+        color: #fff;
+        font-weight: 900;
+        font-size: 0.82rem;
+        padding: 10px 14px;
+        background: rgba(15, 23, 42, 0.78);
+        backdrop-filter: blur(6px);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+        touch-action: manipulation;
+      }
+      .gitego-tbtn.fire {
+        width: 68px;
+        height: 68px;
+        font-size: 1.05rem;
+        background: radial-gradient(circle, #ef4444, #b91c1c);
+        border-color: #fca5a5;
+        display: grid;
+        place-items: center;
+        padding: 0;
       }
     </style>
     <script>
       window.addEventListener('load', () => {
         const canvas = document.getElementById('pygame-canvas');
-        if (!canvas) return;
-        const gameFrame = canvas.parentElement;
-        const controls = gameFrame.querySelector('.pg-ctrl')?.parentElement;
-        const fitCanvas = () => {
-          const width = Math.max(1, gameFrame.clientWidth);
-          const controlsHeight = controls ? controls.offsetHeight + 6 : 0;
-          const height = Math.max(1, gameFrame.clientHeight - controlsHeight);
-          const scale = Math.min(width / canvas.width, height / canvas.height);
-          canvas.style.width = `${Math.floor(canvas.width * scale)}px`;
-          canvas.style.height = `${Math.floor(canvas.height * scale)}px`;
-        };
-        window.addEventListener('resize', fitCanvas);
-        if (window.ResizeObserver) new ResizeObserver(fitCanvas).observe(gameFrame);
-        fitCanvas();
+        if (canvas) {
+          const gameFrame = canvas.parentElement;
+          const controls = gameFrame.querySelector('.pg-ctrl')?.parentElement;
+          const fitCanvas = () => {
+            const width = Math.max(1, gameFrame.clientWidth);
+            const controlsHeight = controls ? controls.offsetHeight + 6 : 0;
+            const height = Math.max(1, gameFrame.clientHeight - controlsHeight);
+            const scale = Math.min(width / canvas.width, height / canvas.height);
+            canvas.style.width = `${Math.floor(canvas.width * scale)}px`;
+            canvas.style.height = `${Math.floor(canvas.height * scale)}px`;
+          };
+          window.addEventListener('resize', fitCanvas);
+          if (window.ResizeObserver) new ResizeObserver(fitCanvas).observe(gameFrame);
+          fitCanvas();
+        }
+        // Add dedicated Touch Fire / Scope / Reload controls for Sniper / GTA 3D games
+        if (document.querySelector('.gta-app')) {
+          const glCanvas = document.querySelector('canvas');
+          const hud = document.createElement('div');
+          hud.className = 'gitego-touch-hud active';
+          hud.innerHTML = '<button type="button" class="gitego-tbtn" id="gt-scope">🔭 Scope</button><button type="button" class="gitego-tbtn" id="gt-reload">🔄 Reload</button><button type="button" class="gitego-tbtn fire" id="gt-fire">🔥<br/>FIRE</button>';
+          document.body.appendChild(hud);
+          hud.querySelector('#gt-scope').addEventListener('pointerdown', (e) => {
+            e.stopPropagation();
+            const sb = document.getElementById('scopeBtn');
+            if (sb) sb.click();
+          });
+          hud.querySelector('#gt-reload').addEventListener('pointerdown', (e) => {
+            e.stopPropagation();
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', bubbles: true }));
+          });
+          hud.querySelector('#gt-fire').addEventListener('pointerdown', (e) => {
+            e.stopPropagation();
+            if (glCanvas) {
+              const rect = glCanvas.getBoundingClientRect();
+              glCanvas.dispatchEvent(new PointerEvent('pointerdown', {
+                button: 0,
+                clientX: rect.left + rect.width / 2,
+                clientY: rect.top + rect.height / 2,
+                bubbles: true
+              }));
+              setTimeout(() => window.dispatchEvent(new PointerEvent('pointerup', { button: 0, bubbles: true })), 80);
+            }
+          });
+        }
       });
     </script>
     """

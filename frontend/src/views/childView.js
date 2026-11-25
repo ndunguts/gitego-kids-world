@@ -748,6 +748,7 @@ async function openChildGamePlayer(gameId, rootContainer) {
             <button id="arcade-help-btn" class="arcade-icon-btn" type="button" title="Amabwiriza (How to Play)" aria-label="How to Play">❓</button>
             <button id="arcade-fit-btn" class="arcade-icon-btn" type="button" title="Hindura uko umukino ugaragara (Fill / Classic / Theater)">${fitMode === 'classic' ? '▣' : fitMode === 'theater' ? '🎬' : '⤢'}</button>
             <button id="arcade-sfx-btn" class="arcade-icon-btn ${sfxEnabled ? 'on' : ''}" type="button" title="Ijwi (Sound Effects)">${sfxEnabled ? '🔊' : '🔇'}</button>
+            <button id="arcade-rotate-btn" class="arcade-action-btn" type="button" title="Hindukiza (Landscape Mode kuri Telefoni)">📱 Rotate</button>
             <button id="arcade-restart-btn" class="arcade-action-btn" type="button" title="Tangira bundi bushya (Restart)">🔄 Restart</button>
             <button id="fullscreen-game-btn" class="arcade-action-btn primary" type="button" title="Fullscreen (F)">⛶ Fullscreen</button>
             <button id="close-game-btn" class="arcade-action-btn danger" type="button" title="Funga (Esc)">✕</button>
@@ -851,6 +852,18 @@ async function openChildGamePlayer(gameId, rootContainer) {
   const sfxBtn = modalRoot.querySelector('#arcade-sfx-btn');
   const helpBtn = modalRoot.querySelector('#arcade-help-btn');
   const helpPopover = modalRoot.querySelector('#arcade-help-popover');
+  const rotateBtn = modalRoot.querySelector('#arcade-rotate-btn');
+  if (rotateBtn) {
+    rotateBtn.addEventListener('click', () => {
+      const box = modalRoot.querySelector('#game-stage-box');
+      if (!box) return;
+      const rotated = box.classList.toggle('arcade-landscape-rot');
+      rotateBtn.textContent = rotated ? '📱 Portrait' : '📱 Rotate';
+      if (rotated && screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {});
+      }
+    });
+  }
 
   let toastTimer = null;
   const showToast = (html, variant = 'gold', ms = 3200) => {

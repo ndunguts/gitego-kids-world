@@ -4540,10 +4540,26 @@ body {
 
   /* Hide non-essential chips & verbose helper text on phones so the game gets max space */
   .arcade-chip,
+  .arcade-sub-hint,
   .arcade-hud .arcade-instructions,
   .arcade-subtitle,
-  .arcade-footer-hint {
+  .arcade-footer-hint,
+  .arcade-hud-metrics {
     display: none !important;
+  }
+
+  /* Software Landscape Mode (90deg rotation for wide games like Sniper & Piano on portrait phones) */
+  #game-stage-box.arcade-landscape-rot {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 100dvh !important;
+    max-width: 100dvh !important;
+    height: 100vw !important;
+    max-height: 100vw !important;
+    transform: translate(-50%, -50%) rotate(90deg) !important;
+    transform-origin: center center !important;
+    z-index: 200 !important;
   }
 
   .stage-actions {
