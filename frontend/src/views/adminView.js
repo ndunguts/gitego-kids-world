@@ -4621,11 +4621,11 @@ async function renderUsersAdminSection(bodyEl, notice = null) {
       </div>
 
       <div class="gl-meta-chips">
-        <span>⚡ Activity: ${escapeHtml(u.current_activity || 'None')}</span>
+        <span>${u.is_online ? `🟢 Live: ${escapeHtml(u.current_activity || 'Online')}` : `⚫ Offline · Last: ${escapeHtml(u.current_activity || 'Idle')}`}</span>
+        <span>📜 ${escapeHtml(u.last_action || 'No actions yet')}</span>
         <span>📊 ${u.stats.activity_count} actions</span>
         ${u.role !== 'PARENT' ? `<span>🎮 ${u.stats.games_created} games • 📖 ${u.stats.books_created} books</span>` : ''}
         ${u.role === 'PARENT' ? `<span>🧒 ${(u.children || []).length} Child account(s)</span>` : ''}
-        <span>🔐 Password: Protected (Resettable)</span>
       </div>
 
       ${

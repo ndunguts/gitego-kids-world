@@ -103,6 +103,10 @@ class SendNotificationRequest(BaseModel):
     auto_suspend_hours: Optional[int] = None
 
 
+class UserHeartbeatRequest(BaseModel):
+    activity: str = "Active on platform"
+
+
 class CreateRuleRequest(BaseModel):
     code: str
     title: str
@@ -271,7 +275,13 @@ def get_users_control_panel(
                 if link.child:
                     parent_children.append(_serialize_child_for_admin(link.child, u, db))
 
-        latest_act = recent_logs[0].summary if recent_logs else (u.current_activity or "No recent activity")
+        now_utc = datetime.datetime.now(datetime.timezone.utc)
+        last_seen = u.last_active_at
+        if last_seen is not None and last_seen.tzinfo is None:
+            last_seen = last_seen.replace(tzinfo=datetime.timezone.utc)
+        user_is_online = bool(last_seen and (now_utc - last_seen).total_seconds() <= 60)
+        live_act = u.current_activity or ("Online" if user_is_online else "Offline")
+        last_act = recent_logs[0].summary if recent_logs else "No recorded actions yet"
         users_payload.append(
             {
                 "id": u.id,
@@ -280,6 +290,7 @@ def get_users_control_panel(
                 "full_name": u.full_name,
                 "role": u.role_name,
                 "is_active": u.is_active,
+                "is_online": user_is_online,
                 "is_suspended": u.is_suspended,
                 "suspended_until": u.suspended_until.isoformat() if u.suspended_until else None,
                 "suspension_reason": u.suspension_reason,
@@ -289,7 +300,8 @@ def get_users_control_panel(
                     if u.last_active_at
                     else (recent_logs[0].created_at.isoformat() if recent_logs and recent_logs[0].created_at else None)
                 ),
-                "current_activity": latest_act,
+                "current_activity": live_act,
+                "last_action": last_act,
                 "password_status": "Protected (Hashed) — Resettable by Super Admin",
                 "stats": {
                     "games_created": games_created,
@@ -330,6 +342,19 @@ def get_users_control_panel(
         "children": children_payload,
         "rules": [_serialize_rule(r) for r in rules],
     }
+
+
+@router.post("/me/heartbeat")
+def user_presence_heartbeat(
+    req: UserHeartbeatRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Record live activity for Parent / Creator / Admin sessions and enforce suspension."""
+    user.last_active_at = datetime.datetime.now(datetime.timezone.utc)
+    user.current_activity = (req.activity or "Active on platform").strip()[:255]
+    db.commit()
+    return {"ok": True, "activity": user.current_activity}
 
 
 @router.get("/me/notifications")
@@ -704,6 +729,10 @@ def admin_suspend_child(
     c.is_suspended = True
     c.suspended_until = until
     c.suspension_reason = req.reason.strip() or "Suspended by Super Admin"
+    if c.user:
+        c.user.is_suspended = True
+        c.user.suspended_until = until
+        c.user.suspension_reason = c.suspension_reason
     db.add(
         ActivityLog(
             actor_user_id=admin.id,
@@ -730,6 +759,10 @@ def admin_unsuspend_child(
     c.is_suspended = False
     c.suspended_until = None
     c.suspension_reason = None
+    if c.user:
+        c.user.is_suspended = False
+        c.user.suspended_until = None
+        c.user.suspension_reason = None
     db.commit()
     return {"suspended": False, "child_id": c.id}
 

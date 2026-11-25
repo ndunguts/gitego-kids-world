@@ -256,12 +256,22 @@ export async function renderParentView(container, onSwitchToChildMode) {
   };
   wireNotifButtons();
 
+  // Ping Parent live presence immediately and every 6 seconds (also enforces instant suspension lockout)
+  api.request('/api/v1/users/me/heartbeat', {
+    method: 'POST',
+    body: JSON.stringify({ activity: 'Managing Children in Parent Portal' }),
+  }).catch(() => {});
+
   // Auto-refresh live presence badges + incoming Admin warnings/alerts every 6 seconds
   parentLiveTimer = setInterval(async () => {
     try {
       const [latest, latestNotifs] = await Promise.all([
         api.request('/api/v1/parents/children'),
         api.request('/api/v1/users/me/notifications').catch(() => []),
+        api.request('/api/v1/users/me/heartbeat', {
+          method: 'POST',
+          body: JSON.stringify({ activity: 'Managing Children in Parent Portal' }),
+        }).catch(() => {}),
       ]);
       latest.forEach((ch) => {
         const badgeWrap = container.querySelector(`#live-badge-${ch.id}`);

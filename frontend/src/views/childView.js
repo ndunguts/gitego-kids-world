@@ -83,7 +83,7 @@ async function pingChildHeartbeat(activityText = null) {
       }),
     });
   } catch (err) {
-    if (err && err.message && err.message.includes('ACCOUNT_SUSPENDED')) {
+    if (err && err.message && (err.message.includes('ACCOUNT_SUSPENDED') || err.message.toLowerCase().includes('suspended'))) {
       stopChildHeartbeat();
       stopVideoTelemetry();
       api.clearSession();
@@ -105,7 +105,7 @@ function ensureChildHeartbeat(activityText = null) {
   }
   pingChildHeartbeat(currentChildActivity);
   if (!childHeartbeatTimer) {
-    childHeartbeatTimer = setInterval(() => pingChildHeartbeat(), 15000);
+    childHeartbeatTimer = setInterval(() => pingChildHeartbeat(), 6000);
   }
 }
 

@@ -142,7 +142,8 @@ def get_current_user(
     payload: dict = Depends(get_current_user_payload),
     db: Session = Depends(get_db),
 ):
-    from app.models import User
+    from app.models import ChildProfile, User
+    from app.services.child_state import check_child_suspension
 
     user = db.query(User).filter(User.id == payload.get("uid")).first()
     if not user or not user.is_active:
@@ -150,7 +151,7 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found or inactive",
         )
-    # Enforce timed/permanent user suspension immediately on active sessions
+    # Enforce timed/permanent user suspension immediately on EVERY active session request
     if user.is_suspended:
         now = datetime.datetime.now(datetime.timezone.utc)
         until = user.suspended_until
@@ -169,20 +170,34 @@ def get_current_user(
                 detail=f"Account suspended{until_str}.{reason_str}",
             )
 
-    # Update lightweight last_active_at for live presence tracking (at most once per 30s)
+    # Also enforce ChildProfile suspension immediately on EVERY request for child sessions
+    effective_role = payload.get("role", user.role_name)
+    token_child_id = payload.get("child_profile_id")
+    if effective_role == "CHILD":
+        child = (
+            db.query(ChildProfile).filter(ChildProfile.id == token_child_id).first()
+            if token_child_id
+            else user.child_profile
+        )
+        if child:
+            c_susp, c_msg = check_child_suspension(child, db)
+            if c_susp:
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=c_msg)
+
+    # Update lightweight last_active_at for live presence tracking (at most once per 20s)
     now = datetime.datetime.now(datetime.timezone.utc)
     last = user.last_active_at
     if last is not None and last.tzinfo is None:
         last = last.replace(tzinfo=datetime.timezone.utc)
-    if last is None or (now - last).total_seconds() >= 30:
+    if last is None or (now - last).total_seconds() >= 20:
         user.last_active_at = now
         if not user.current_activity:
             user.current_activity = "Active on platform"
         db.commit()
 
     # Attach token context (e.g. active child_profile_id or role override for child session)
-    user._token_role = payload.get("role", user.role_name)
-    user._token_child_profile_id = payload.get("child_profile_id")
+    user._token_role = effective_role
+    user._token_child_profile_id = token_child_id
     return user
 
 

@@ -131,14 +131,62 @@ def get_published_game_play_bundle(game_id: int, db: Session = Depends(get_db)):
     # Published bundles are snapshots. Apply the responsive canvas constraint at
     # delivery time too, so existing Python games receive the fit fix immediately.
     fit_canvas_style = """
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <style>
-      html, body { width: 100%; height: 100%; min-height: 0; overflow: hidden; }
+      html, body {
+        width: 100%;
+        height: 100%;
+        height: 100dvh;
+        min-height: 0;
+        overflow: hidden;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+      canvas {
+        max-width: 100% !important;
+        max-height: 100% !important;
+        touch-action: none;
+      }
       #pygame-canvas {
         display: block;
         height: auto !important;
         max-width: 100% !important;
         max-height: calc(100dvh - 72px) !important;
         object-fit: contain;
+      }
+      @media (max-width: 768px) {
+        .gta-app {
+          padding: 3px !important;
+          gap: 3px !important;
+        }
+        .gta-topbar {
+          flex-wrap: nowrap !important;
+          overflow-x: auto !important;
+          -webkit-overflow-scrolling: touch;
+          padding: 4px 6px !important;
+          gap: 4px !important;
+          border-radius: 8px !important;
+          scrollbar-width: none;
+        }
+        .gta-topbar::-webkit-scrollbar { display: none; }
+        .tb-left, .tb-center, .tb-right {
+          flex-wrap: nowrap !important;
+          gap: 4px !important;
+          flex-shrink: 0;
+        }
+        .brand-badge, .mission-title, #districtBadge, #windReadout {
+          display: none !important;
+        }
+        .hud-chip, .gta-btn {
+          padding: 4px 7px !important;
+          font-size: 0.7rem !important;
+          white-space: nowrap !important;
+        }
+        .gta-viewport, .viewport-wrap, #gameWrap, .game-wrap, .stage {
+          flex: 1 1 0 !important;
+          min-height: 0 !important;
+          width: 100% !important;
+        }
       }
     </style>
     <script>
