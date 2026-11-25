@@ -1,0 +1,14 @@
+{
+  "appId": "com.gitego.kidsworld",
+  "appName": "Gitego Kids World",
+  "webDir": "www",
+  "server": {
+    "url": "https://gitego-kids-world.onrender.com",
+    "cleartext": false,
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#06070b"
+  }
+}

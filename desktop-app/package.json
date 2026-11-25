@@ -1,0 +1,38 @@
+{
+  "name": "gitego-kids-world-desktop",
+  "version": "1.0.0",
+  "description": "GITEGO KIDS WORLD — Desktop Application (Linux, Windows, macOS)",
+  "main": "main.js",
+  "author": "Gitego Kids World",
+  "scripts": {
+    "start": "electron .",
+    "build:linux": "electron-builder --linux AppImage deb",
+    "build:win": "electron-builder --win nsis",
+    "build:mac": "electron-builder --mac dmg"
+  },
+  "build": {
+    "appId": "com.gitego.kidsworld.desktop",
+    "productName": "Gitego Kids World",
+    "directories": {
+      "output": "dist"
+    },
+    "linux": {
+      "icon": "icon.png",
+      "category": "Education",
+      "target": ["AppImage", "deb"]
+    },
+    "win": {
+      "icon": "icon.png",
+      "target": ["nsis"]
+    },
+    "mac": {
+      "icon": "icon.png",
+      "category": "public.app-category.education",
+      "target": ["dmg"]
+    }
+  },
+  "devDependencies": {
+    "electron": "^32.2.0",
+    "electron-builder": "^25.1.8"
+  }
+}

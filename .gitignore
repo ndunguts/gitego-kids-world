@@ -7,9 +7,12 @@ venv/
 .env
 backend/gitego_kids_world.db
 
-# Node
+# Node & App Builds
 node_modules/
 frontend/dist/
+desktop-app/dist/
+mobile-android/android/
+mobile-android/ios/
 
 # OS & keys
 .DS_Store

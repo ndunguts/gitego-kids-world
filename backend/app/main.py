@@ -285,6 +285,24 @@ FRONTEND_DIR = os.path.abspath(
 )
 if os.path.isdir(os.path.join(FRONTEND_DIR, "src")):
     app.mount("/src", StaticFiles(directory=os.path.join(FRONTEND_DIR, "src")), name="frontend_src")
+if os.path.isdir(os.path.join(FRONTEND_DIR, "icons")):
+    app.mount("/icons", StaticFiles(directory=os.path.join(FRONTEND_DIR, "icons")), name="frontend_icons")
+
+
+@app.get("/manifest.webmanifest", include_in_schema=False)
+def serve_pwa_manifest():
+    p = os.path.join(FRONTEND_DIR, "manifest.webmanifest")
+    if os.path.isfile(p):
+        return FileResponse(p, media_type="application/manifest+json")
+    return {}
+
+
+@app.get("/sw.js", include_in_schema=False)
+def serve_service_worker():
+    p = os.path.join(FRONTEND_DIR, "sw.js")
+    if os.path.isfile(p):
+        return FileResponse(p, media_type="application/javascript")
+    return ""
 
 
 @app.get("/", include_in_schema=False)
