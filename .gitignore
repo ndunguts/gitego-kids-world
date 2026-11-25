@@ -1,0 +1,16 @@
+# Python & local DB
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+.env
+backend/gitego_kids_world.db
+
+# Node
+node_modules/
+frontend/dist/
+
+# OS & keys
+.DS_Store
+*.pem

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Isi y'Abana — Inkuru n'Indirimbo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Decorative Sky & Clouds -->
+  <div class="sky-decor" aria-hidden="true">
+    <div class="sun"></div>
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div>
+  </div>
+
+  <!-- Top Header -->
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-badge" aria-hidden="true">🌈</span>
+      <div>
+        <h1 id="site-title">Isi y'Abana</h1>
+        <p id="site-tagline">Inkuru n'Indirimbo zishimishije!</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="star-counter" id="star-counter" title="Inyenyeri zawe">
+        <span class="star-icon">⭐</span>
+        <span id="star-count">0</span>
+      </div>
+      <button class="pill-btn" id="lang-toggle" type="button" aria-label="Hindura ururimi">
+        🇷🇼 Kinyarwanda
+      </button>
+      <button class="pill-btn parent-btn" id="parent-btn" type="button">
+        🔒 <span id="parent-btn-label">Ababyeyi</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Big Kid-Friendly Navigation Tabs -->
+  <nav class="main-nav" aria-label="Ibice by'urubuga">
+    <button class="nav-tile active" data-tab="games" type="button">
+      <span class="tile-emoji">🎮</span>
+      <span class="tile-label" id="nav-games">Udukino</span>
+    </button>
+    <button class="nav-tile" data-tab="stories" type="button">
+      <span class="tile-emoji">📖</span>
+      <span class="tile-label" id="nav-stories">Inkuru</span>
+    </button>
+    <button class="nav-tile" data-tab="songs" type="button">
+      <span class="tile-emoji">🎵</span>
+      <span class="tile-label" id="nav-songs">Indirimbo</span>
+    </button>
+    <button class="nav-tile" data-tab="music" type="button">
+      <span class="tile-emoji">🎹</span>
+      <span class="tile-label" id="nav-music">Curanga</span>
+    </button>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container">
+    <!-- MINI-GAMES SECTION -->
+    <section id="tab-games" class="tab-panel active">
+      <div class="section-intro">
+        <h2 id="games-heading">Hitamo Agakino ukine!</h2>
+        <p id="games-sub">Udukino dushimishije dufasha abana gutekereza, kubara no kwibuka.</p>
+      </div>
+
+      <div class="card-grid">
+        <!-- Game 1: Memory Match -->
+        <article class="kid-card">
+          <div class="card-banner" style="background: linear-gradient(135deg, #fde047, #4ade80)">
+            <span>🃏🦁</span>
+            <span class="card-badge" id="memory-badge">Kwibuka</span>
+          </div>
+          <h3 id="game1-title">Guhuza Amashusho (Memory)</h3>
+          <p id="game1-desc">Birindura amakarita abiri asa kugira ngo ubone inyamaswa zihishe!</p>
+          <div id="memory-board" class="memory-board"></div>
+          <button id="memory-reset-btn" class="card-action" type="button">Tangira Bushya 🔄</button>
+        </article>
+
+        <!-- Game 2: Counting Quiz -->
+        <article class="kid-card">
+          <div class="card-banner" style="background: linear-gradient(135deg, #93c5fd, #c4b5fd)">
+            <span>🔢🍎</span>
+            <span class="card-badge" id="count-badge">Imibare</span>
+          </div>
+          <h3 id="game2-title">Bara Ibicuruzwa n'Imbuto</h3>
+          <p id="game2-desc">Bara ibintu ubona hasi hanyuma ukande ku mubare w'ukuri!</p>
+          <div id="count-display" class="game-box"></div>
+          <div id="count-options" class="quiz-options"></div>
+          <p id="count-feedback" class="game-feedback"></p>
+        </article>
+
+        <!-- Game 3: Animal Sound / Color Finder -->
+        <article class="kid-card">
+          <div class="card-banner" style="background: linear-gradient(135deg, #fbcfe8, #fda4af)">
+            <span>🎨🐶</span>
+            <span class="card-badge" id="finder-badge">Amabara &amp; Amajwi</span>
+          </div>
+          <h3 id="game3-title">Shaka Inyamaswa cyangwa Ibara</h3>
+          <p id="game3-desc">Soma cyangwa wumve icyo bagusabye, hanyuma ukande ku ishusho nyayo!</p>
+          <div id="finder-prompt" class="game-prompt"></div>
+          <div id="finder-options" class="quiz-options"></div>
+          <p id="finder-feedback" class="game-feedback"></p>
+        </article>
+      </div>
+    </section>
+
+    <!-- STORIES SECTION -->
+    <section id="tab-stories" class="tab-panel">
+      <div class="section-intro">
+        <h2 id="stories-heading">Hitamo Inkuru ushaka gusoma!</h2>
+        <p id="stories-sub">Kanda ku ikarita y'inkuru kugira ngo utangire urugendo.</p>
+      </div>
+      <div id="stories-grid" class="card-grid"></div>
+    </section>
+
+    <!-- SONGS SECTION -->
+    <section id="tab-songs" class="tab-panel">
+      <div class="section-intro">
+        <h2 id="songs-heading">Ririmba hamwe natwe!</h2>
+        <p id="songs-sub">Kanda "Curanga" wumve umuziki kandi usome amagambo y'indirimbo.</p>
+      </div>
+      <div id="songs-grid" class="card-grid"></div>
+
+      <!-- Active Song Player Stage -->
+      <div id="song-stage" class="song-stage hidden">
+        <div class="song-stage-header">
+          <div>
+            <span id="stage-emoji" class="stage-emoji">🎵</span>
+            <h3 id="stage-title"></h3>
+          </div>
+          <div class="stage-controls">
+            <button id="play-song-btn" class="big-cta" type="button">▶️ <span id="play-label">Curanga</span></button>
+            <button id="stop-song-btn" class="secondary-cta" type="button">⏹️ <span id="stop-label">Hagarika</span></button>
+          </div>
+        </div>
+        <div id="lyrics-box" class="lyrics-box"></div>
+      </div>
+    </section>
+
+    <!-- PLAYABLE XYLOPHONE SECTION -->
+    <section id="tab-music" class="tab-panel">
+      <div class="section-intro">
+        <h2 id="music-heading">Curanga Xilofone y'Amabara!</h2>
+        <p id="music-sub">Kanda ku mabara kugira ngo ukore indirimbo yawe.</p>
+      </div>
+      <div class="xylophone-wrapper">
+        <div id="xylophone" class="xylophone"></div>
+        <div class="music-actions">
+          <button id="demo-melody-btn" class="big-cta" type="button">✨ <span id="demo-label">Curanga agace gato</span></button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- STORY READER MODAL -->
+  <div id="story-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="reader-title">
+    <div class="modal-card story-reader">
+      <button id="close-story-btn" class="close-btn" type="button" aria-label="Funga">✕</button>
+      <h3 id="reader-title" class="reader-title"></h3>
+      <div id="reader-scene" class="reader-scene"></div>
+      <p id="reader-text" class="reader-text"></p>
+      <div class="reader-footer">
+        <button id="prev-page-btn" class="secondary-cta" type="button">⬅️ <span id="prev-label">Inyuma</span></button>
+        <span id="page-indicator" class="page-indicator">1 / 3</span>
+        <button id="next-page-btn" class="big-cta" type="button"><span id="next-label">Komeza</span> ➡️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARENT GATE MODAL -->
+  <div id="parent-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="parent-modal-title">
+    <div class="modal-card parent-card">
+      <button id="close-parent-btn" class="close-btn" type="button" aria-label="Funga">✕</button>
+      <h3 id="parent-modal-title">Umutekano w'Ababyeyi</h3>
+
+      <div id="parent-gate-step">
+        <p id="parent-gate-desc">Subiza iki kibazo cyoroshye kugira ngo winjire:</p>
+        <div class="math-question">
+          <span id="math-prompt">4 + 3 = ?</span>
+          <input id="math-input" type="number" inputmode="numeric" placeholder="?" />
+        </div>
+        <p id="math-error" class="math-error hidden"></p>
+        <button id="math-submit-btn" class="big-cta" type="button">Injira</button>
+      </div>
+
+      <div id="parent-settings-step" class="hidden">
+        <p id="parent-welcome">Murakaza neza! Hano mushobora kugenzura ibikoresho by'umwana.</p>
+        <div class="setting-row">
+          <label for="sound-toggle" id="sound-label">Ijwi ry'umuziki</label>
+          <input type="checkbox" id="sound-toggle" checked />
+        </div>
+        <div class="setting-row">
+          <span id="reset-stars-label">Subiza inyenyeri kuri zero</span>
+          <button id="reset-stars-btn" class="secondary-cta" type="button">Subiza kuri 0</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CELEBRATION CONFETTI LAYER -->
+  <div id="confetti-layer" class="confetti-layer" aria-hidden="true"></div>
+
+  <footer class="site-footer">
+    <p id="footer-text">Isi y'Abana • Yateguwe mu rukundo rwinshi ku bana bo mu Rwanda n'ahandi hose 🌍</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
