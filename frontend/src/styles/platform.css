@@ -4482,3 +4482,241 @@ body.arcade-modal-open {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   9. MOBILE / PHONE RESPONSIVE POLISH (<= 768px)
+   ========================================================================== */
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  /* Edge-to-edge full-screen Arcade Game Player on phones */
+  .stage-modal,
+  .arcade-modal {
+    padding: 0 !important;
+    align-items: stretch;
+  }
+
+  #game-stage-box,
+  #video-stage-box,
+  .stage-box {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    padding: 6px !important;
+    gap: 6px !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .arcade-hud {
+    padding: 6px 8px !important;
+    gap: 6px !important;
+    border-radius: 10px !important;
+    flex-shrink: 0;
+  }
+
+  .arcade-hud-left {
+    flex: 1 1 auto !important;
+    gap: 8px !important;
+  }
+
+  .arcade-badge {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+  }
+
+  .arcade-title-row h2 {
+    font-size: 0.9rem !important;
+    max-width: 150px !important;
+  }
+
+  /* Hide non-essential chips & verbose helper text on phones so the game gets max space */
+  .arcade-chip,
+  .arcade-hud .arcade-instructions,
+  .arcade-subtitle,
+  .arcade-footer-hint {
+    display: none !important;
+  }
+
+  .stage-actions {
+    gap: 4px !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .stage-actions button,
+  .arcade-hud button {
+    padding: 6px 9px !important;
+    font-size: 0.74rem !important;
+    white-space: nowrap;
+  }
+
+  .game-iframe-frame {
+    flex: 1 1 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 70dvh !important;
+    border-radius: 10px !important;
+  }
+
+  /* Cinema Video Modal on phones */
+  .cinema-topbar {
+    padding: 6px 8px !important;
+    gap: 6px !important;
+    flex-wrap: wrap;
+  }
+
+  .cinema-topbar h2 {
+    font-size: 0.92rem !important;
+  }
+
+  .cinema-layout {
+    grid-template-columns: 1fr !important;
+    overflow-y: auto !important;
+    gap: 10px !important;
+  }
+
+  .cinema-screen-wrap {
+    min-height: 220px !important;
+    aspect-ratio: 16 / 9;
+  }
+
+  .cinema-footer-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .cinema-controls-right {
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Topbar & navigation on phones */
+  .platform-topbar {
+    padding: 8px 12px !important;
+    gap: 8px !important;
+  }
+
+  .topbar-brand .brand-name {
+    font-size: 0.9rem !important;
+  }
+
+  .topbar-controls {
+    gap: 6px !important;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .role-pill,
+  .logout-btn,
+  .return-parent-btn {
+    padding: 6px 10px !important;
+    font-size: 0.74rem !important;
+  }
+
+  /* Grids & Cards on phones */
+  .child-grid,
+  .gl-grid,
+  .parent-grid,
+  .form-grid,
+  .an-safety-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .admin-kpi {
+    padding: 10px 12px !important;
+  }
+
+  .admin-kpi .num {
+    font-size: 1.35rem !important;
+  }
+
+  .admin-main {
+    padding: 12px !important;
+    min-width: 0;
+  }
+
+  .admin-card {
+    padding: 12px !important;
+    overflow-x: auto;
+  }
+
+  .admin-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  /* Modals on phones */
+  .gl-modal-backdrop {
+    padding: 8px !important;
+  }
+
+  .gl-modal {
+    max-width: 100% !important;
+    max-height: 94dvh !important;
+    border-radius: 14px !important;
+  }
+
+  .gl-modal-header,
+  .gl-modal-body {
+    padding: 12px 14px !important;
+  }
+
+  .gl-modal-tabs {
+    padding: 8px 12px 0 !important;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .gl-tab-btn {
+    white-space: nowrap;
+    font-size: 0.78rem !important;
+    padding: 7px 10px !important;
+  }
+
+  .gl-filter-bar {
+    grid-template-columns: 1fr !important;
+    padding: 10px !important;
+  }
+
+  .gl-card-actions {
+    gap: 5px !important;
+  }
+
+  .gl-card-actions button {
+    font-size: 0.74rem !important;
+    padding: 6px 8px !important;
+  }
+
+  /* Child World hero & nav pills on phones */
+  .child-shell {
+    padding: 0 12px !important;
+  }
+
+  .cine-hero {
+    min-height: 300px !important;
+  }
+
+  .chip-row {
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+}

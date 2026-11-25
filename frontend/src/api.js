@@ -106,6 +106,15 @@ export const api = {
       const msg =
         (payload && payload.detail && (typeof payload.detail === 'string' ? payload.detail : JSON.stringify(payload.detail))) ||
         `Request failed (${res.status})`;
+      if (res.status === 403 && msg.toLowerCase().includes('suspended') && this.getToken()) {
+        const cur = this.getCurrentUser();
+        this.clearSession();
+        window.dispatchEvent(
+          new CustomEvent('gitego:account-suspended', {
+            detail: { message: msg, role: cur?.role || 'PARENT' },
+          })
+        );
+      }
       throw new Error(msg);
     }
     return payload;

@@ -447,6 +447,16 @@ window.addEventListener('gitego:settings-updated', async () => {
   }
 });
 
+window.addEventListener('gitego:account-suspended', (e) => {
+  stopParentLiveRefresh();
+  stopChildHeartbeat();
+  const root = document.getElementById('app');
+  loginTab = e.detail?.role === 'CHILD' ? 'child' : 'account';
+  parentAuthMode = 'login';
+  appMode = null;
+  renderLoginScreen(root, e.detail?.message || 'Account yahagaritswe na Super Admin.');
+});
+
 window.addEventListener('gitego:child-suspended', (e) => {
   const root = document.getElementById('app');
   loginTab = 'child';

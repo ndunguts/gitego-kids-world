@@ -51,10 +51,11 @@ export async function renderParentView(container, onSwitchToChildMode) {
   const isParent = currentUser.role === 'PARENT';
   const parentUsername = currentUser.username || '';
 
-  const unreadNotifs = (notifications || []).filter((n) => !n.is_read);
-  const notifBannerHtml = unreadNotifs.length
-    ? `<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px">
-        ${unreadNotifs
+  const renderNotifsHtml = (list) => {
+    const unread = (list || []).filter((n) => !n.is_read);
+    if (!unread.length) return '';
+    return `<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px">
+        ${unread
           .map((n) => {
             const isWarn = n.message_type === 'warning';
             const isAlert = n.message_type === 'alert';
@@ -72,13 +73,13 @@ export async function renderParentView(container, onSwitchToChildMode) {
             </div>`;
           })
           .join('')}
-      </div>`
-    : '';
+      </div>`;
+  };
 
   container.innerHTML = `
     <div class="theme-parent">
       <div class="parent-shell">
-        ${notifBannerHtml}
+        <div id="parent-notifs-wrap">${renderNotifsHtml(notifications)}</div>
         <div class="parent-banner">
           <div>
             <h1 style="margin:0;font-size:1.65rem">🛡️ Gitego Parent &amp; Guardian Portal</h1>
@@ -240,30 +241,41 @@ export async function renderParentView(container, onSwitchToChildMode) {
     </div>
   `;
 
-  // Auto-refresh live presence badges every 10 seconds without wiping open forms
+  const wireNotifButtons = () => {
+    container.querySelectorAll('.parent-mark-read-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        try {
+          await api.request(`/api/v1/users/me/notifications/${btn.dataset.nid}/read`, { method: 'POST' });
+          const row = container.querySelector(`.parent-notif-item[data-nid="${btn.dataset.nid}"]`);
+          if (row) row.remove();
+        } catch {
+          // ignore
+        }
+      });
+    });
+  };
+  wireNotifButtons();
+
+  // Auto-refresh live presence badges + incoming Admin warnings/alerts every 6 seconds
   parentLiveTimer = setInterval(async () => {
     try {
-      const latest = await api.request('/api/v1/parents/children');
+      const [latest, latestNotifs] = await Promise.all([
+        api.request('/api/v1/parents/children'),
+        api.request('/api/v1/users/me/notifications').catch(() => []),
+      ]);
       latest.forEach((ch) => {
         const badgeWrap = container.querySelector(`#live-badge-${ch.id}`);
         if (badgeWrap) badgeWrap.innerHTML = renderLiveBadge(ch.live_status);
       });
-    } catch {
-      // ignore transient poll errors
-    }
-  }, 10000);
-
-  container.querySelectorAll('.parent-mark-read-btn').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      try {
-        await api.request(`/api/v1/users/me/notifications/${btn.dataset.nid}/read`, { method: 'POST' });
-        const row = container.querySelector(`.parent-notif-item[data-nid="${btn.dataset.nid}"]`);
-        if (row) row.remove();
-      } catch {
-        // ignore
+      const nWrap = container.querySelector('#parent-notifs-wrap');
+      if (nWrap) {
+        nWrap.innerHTML = renderNotifsHtml(latestNotifs);
+        wireNotifButtons();
       }
-    });
-  });
+    } catch {
+      // ignore transient poll errors (403 suspension is handled globally in api.js)
+    }
+  }, 6000);
 
   container.querySelector('#refresh-live-status-btn').addEventListener('click', () => {
     renderParentView(container, onSwitchToChildMode);

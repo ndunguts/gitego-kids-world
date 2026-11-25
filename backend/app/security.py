@@ -150,6 +150,36 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found or inactive",
         )
+    # Enforce timed/permanent user suspension immediately on active sessions
+    if user.is_suspended:
+        now = datetime.datetime.now(datetime.timezone.utc)
+        until = user.suspended_until
+        if until is not None and until.tzinfo is None:
+            until = until.replace(tzinfo=datetime.timezone.utc)
+        if until is not None and until <= now:
+            user.is_suspended = False
+            user.suspended_until = None
+            user.suspension_reason = None
+            db.commit()
+        else:
+            until_str = f" until {until.strftime('%Y-%m-%d %H:%M UTC')}" if until else " indefinitely"
+            reason_str = f" Reason: {user.suspension_reason}" if user.suspension_reason else ""
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Account suspended{until_str}.{reason_str}",
+            )
+
+    # Update lightweight last_active_at for live presence tracking (at most once per 30s)
+    now = datetime.datetime.now(datetime.timezone.utc)
+    last = user.last_active_at
+    if last is not None and last.tzinfo is None:
+        last = last.replace(tzinfo=datetime.timezone.utc)
+    if last is None or (now - last).total_seconds() >= 30:
+        user.last_active_at = now
+        if not user.current_activity:
+            user.current_activity = "Active on platform"
+        db.commit()
+
     # Attach token context (e.g. active child_profile_id or role override for child session)
     user._token_role = payload.get("role", user.role_name)
     user._token_child_profile_id = payload.get("child_profile_id")

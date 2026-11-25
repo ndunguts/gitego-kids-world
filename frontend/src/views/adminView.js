@@ -141,6 +141,7 @@ export async function renderAdminView(container) {
 
   container.querySelectorAll('.admin-nav-item').forEach((btn) => {
     btn.addEventListener('click', () => {
+      stopAdminUsersLiveRefresh();
       adminState.section = btn.dataset.sec;
       renderAdminView(container);
     });
@@ -4555,6 +4556,15 @@ async function renderAdminOverview(bodyEl) {
   });
 }
 
+let adminUsersLiveTimer = null;
+
+function stopAdminUsersLiveRefresh() {
+  if (adminUsersLiveTimer) {
+    clearInterval(adminUsersLiveTimer);
+    adminUsersLiveTimer = null;
+  }
+}
+
 function generateStrongPassword() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
   let out = 'Gt';
@@ -4672,6 +4682,7 @@ async function renderUsersAdminSection(bodyEl, notice = null) {
         <small style="color:var(--text-3)">Monitor Admins, Creators, Parents &amp; Children — inspect live activity, manage passwords, send alerts/warnings, enforce rules, suspend, or delete accounts.</small>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="ucp-refresh-live-btn" class="btn-secondary" type="button">🔄 Refresh Live</button>
         <button id="ucp-toggle-create-btn" class="btn-primary" type="button">+ Create User Account</button>
       </div>
     </div>
@@ -4987,6 +4998,26 @@ async function renderUsersAdminSection(bodyEl, notice = null) {
   }
 
   // Create User panel
+  stopAdminUsersLiveRefresh();
+  bodyEl.querySelector('#ucp-refresh-live-btn').addEventListener('click', () => {
+    renderUsersAdminSection(bodyEl);
+  });
+  adminUsersLiveTimer = setInterval(() => {
+    if (adminState.section !== 'users' && adminState.section !== 'parents' && adminState.section !== 'children') {
+      stopAdminUsersLiveRefresh();
+      return;
+    }
+    const anyModalOpen =
+      bodyEl.querySelector('#ucp-inspect-backdrop')?.style.display === 'flex' ||
+      bodyEl.querySelector('#ucp-notify-backdrop')?.style.display === 'flex' ||
+      bodyEl.querySelector('#ucp-suspend-backdrop')?.style.display === 'flex' ||
+      bodyEl.querySelector('#ucp-create-panel')?.style.display === 'block' ||
+      document.activeElement?.id === 'ucp-search';
+    if (!anyModalOpen && !document.hidden) {
+      renderUsersAdminSection(bodyEl);
+    }
+  }, 8000);
+
   const createPanel = bodyEl.querySelector('#ucp-create-panel');
   bodyEl.querySelector('#ucp-toggle-create-btn').addEventListener('click', () => {
     createPanel.style.display = createPanel.style.display === 'none' ? 'block' : 'none';
