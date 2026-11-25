@@ -221,8 +221,36 @@ def get_published_game_play_bundle(game_id: int, db: Session = Depends(get_db)):
         gap: 8px;
         align-items: flex-end;
       }
+      .gitego-dpad {
+        display: none;
+        position: fixed;
+        left: 12px;
+        bottom: 14px;
+        z-index: 9999;
+        grid-template-columns: repeat(3, 46px);
+        grid-template-rows: repeat(3, 46px);
+        gap: 5px;
+      }
       @media (pointer: coarse), (max-width: 900px) {
         .gitego-touch-hud.active { display: flex; }
+        .gitego-dpad.active { display: grid; }
+      }
+      .gitego-dbtn {
+        border: 2px solid rgba(255,255,255,0.35);
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.72);
+        backdrop-filter: blur(6px);
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 900;
+        display: grid;
+        place-items: center;
+        touch-action: none;
+        user-select: none;
+      }
+      .gitego-dbtn:active {
+        background: rgba(99, 102, 241, 0.85);
+        border-color: #fff;
       }
       .gitego-tbtn {
         border: 2px solid rgba(255,255,255,0.4);
@@ -265,9 +293,35 @@ def get_published_game_play_bundle(game_id: int, db: Session = Depends(get_db)):
           if (window.ResizeObserver) new ResizeObserver(fitCanvas).observe(gameFrame);
           fitCanvas();
         }
-        // Add dedicated Touch Fire / Scope / Reload controls for Sniper / GTA 3D games
+        // Add dedicated Touch D-Pad (Move Forward/Back/Left/Right) + Fire/Scope/Reload for Sniper / GTA 3D games
         if (document.querySelector('.gta-app')) {
           const glCanvas = document.querySelector('canvas');
+          const dpad = document.createElement('div');
+          dpad.className = 'gitego-dpad active';
+          dpad.innerHTML = '<div></div><button type="button" class="gitego-dbtn" data-key="w" aria-label="Forward">⬆️</button><div></div>'
+            + '<button type="button" class="gitego-dbtn" data-key="a" aria-label="Left">⬅️</button>'
+            + '<button type="button" class="gitego-dbtn" data-key="c" aria-label="Cover">🥷</button>'
+            + '<button type="button" class="gitego-dbtn" data-key="d" aria-label="Right">➡️</button>'
+            + '<div></div><button type="button" class="gitego-dbtn" data-key="s" aria-label="Backward">⬇️</button><div></div>';
+          document.body.appendChild(dpad);
+          dpad.querySelectorAll('.gitego-dbtn').forEach((btn) => {
+            const k = btn.dataset.key;
+            const press = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true }));
+            };
+            const release = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.dispatchEvent(new KeyboardEvent('keyup', { key: k, bubbles: true }));
+            };
+            btn.addEventListener('pointerdown', press);
+            btn.addEventListener('pointerup', release);
+            btn.addEventListener('pointerleave', release);
+            btn.addEventListener('pointercancel', release);
+          });
+
           const hud = document.createElement('div');
           hud.className = 'gitego-touch-hud active';
           hud.innerHTML = '<button type="button" class="gitego-tbtn" id="gt-scope">🔭 Scope</button><button type="button" class="gitego-tbtn" id="gt-reload">🔄 Reload</button><button type="button" class="gitego-tbtn fire" id="gt-fire">🔥<br/>FIRE</button>';
