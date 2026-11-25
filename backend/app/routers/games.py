@@ -210,38 +210,64 @@ def get_published_game_play_bundle(game_id: int, db: Session = Depends(get_db)):
           padding: 10px !important;
         }
       }
-      /* Mobile Touch Controls for 3D Sniper / Shooter games */
+      /* Mobile Touch Controls for 3D Sniper / Shooter games — compact, translucent & non-blocking */
       .gitego-touch-hud {
         display: none;
         position: fixed;
-        right: 12px;
-        bottom: 14px;
-        z-index: 9999;
+        right: 8px;
+        bottom: 44px;
+        z-index: 25;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
         align-items: flex-end;
+        pointer-events: none;
       }
       .gitego-dpad {
         display: none;
         position: fixed;
-        left: 12px;
-        bottom: 14px;
-        z-index: 9999;
-        grid-template-columns: repeat(3, 46px);
-        grid-template-rows: repeat(3, 46px);
-        gap: 5px;
+        left: 8px;
+        bottom: 44px;
+        z-index: 25;
+        grid-template-columns: repeat(3, 38px);
+        grid-template-rows: repeat(3, 38px);
+        gap: 4px;
+        pointer-events: none;
       }
       @media (pointer: coarse), (max-width: 900px) {
-        .gitego-touch-hud.active { display: flex; }
-        .gitego-dpad.active { display: grid; }
+        .gitego-touch-hud.active:not(.hidden-by-ui) { display: flex; }
+        .gitego-dpad.active:not(.hidden-by-ui) { display: grid; }
+        /* Keep game HUD bars & quick controls completely clear of touch controls */
+        #lockMouseBtn { display: none !important; }
+        .gta-bars-dock {
+          top: 6px !important;
+          left: 8px !important;
+          bottom: auto !important;
+          width: 118px !important;
+        }
+        .quick-controls {
+          bottom: 4px !important;
+          left: 50% !important;
+          right: auto !important;
+          transform: translateX(-50%) !important;
+          flex-wrap: nowrap !important;
+          gap: 4px !important;
+          max-width: 96vw !important;
+          overflow-x: auto !important;
+        }
+        .quick-controls .gta-btn.small {
+          padding: 3px 6px !important;
+          font-size: 0.62rem !important;
+          white-space: nowrap !important;
+        }
       }
       .gitego-dbtn {
-        border: 2px solid rgba(255,255,255,0.35);
-        border-radius: 12px;
-        background: rgba(15, 23, 42, 0.72);
-        backdrop-filter: blur(6px);
+        pointer-events: auto;
+        border: 1.5px solid rgba(255,255,255,0.28);
+        border-radius: 10px;
+        background: rgba(15, 23, 42, 0.44);
+        backdrop-filter: blur(4px);
         color: #fff;
-        font-size: 1.1rem;
+        font-size: 0.92rem;
         font-weight: 900;
         display: grid;
         place-items: center;
@@ -249,27 +275,29 @@ def get_published_game_play_bundle(game_id: int, db: Session = Depends(get_db)):
         user-select: none;
       }
       .gitego-dbtn:active {
-        background: rgba(99, 102, 241, 0.85);
+        background: rgba(99, 102, 241, 0.82);
         border-color: #fff;
       }
       .gitego-tbtn {
-        border: 2px solid rgba(255,255,255,0.4);
+        pointer-events: auto;
+        border: 1.5px solid rgba(255,255,255,0.32);
         border-radius: 999px;
         color: #fff;
         font-weight: 900;
-        font-size: 0.82rem;
-        padding: 10px 14px;
-        background: rgba(15, 23, 42, 0.78);
-        backdrop-filter: blur(6px);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+        font-size: 0.72rem;
+        padding: 6px 10px;
+        background: rgba(15, 23, 42, 0.52);
+        backdrop-filter: blur(4px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.35);
         touch-action: manipulation;
       }
       .gitego-tbtn.fire {
-        width: 68px;
-        height: 68px;
-        font-size: 1.05rem;
-        background: radial-gradient(circle, #ef4444, #b91c1c);
-        border-color: #fca5a5;
+        width: 54px;
+        height: 54px;
+        font-size: 0.85rem;
+        line-height: 1.05;
+        background: radial-gradient(circle, rgba(239,68,68,0.88), rgba(185,28,28,0.88));
+        border-color: rgba(252,165,165,0.8);
         display: grid;
         place-items: center;
         padding: 0;
@@ -324,8 +352,38 @@ def get_published_game_play_bundle(game_id: int, db: Session = Depends(get_db)):
 
           const hud = document.createElement('div');
           hud.className = 'gitego-touch-hud active';
-          hud.innerHTML = '<button type="button" class="gitego-tbtn" id="gt-scope">🔭 Scope</button><button type="button" class="gitego-tbtn" id="gt-reload">🔄 Reload</button><button type="button" class="gitego-tbtn fire" id="gt-fire">🔥<br/>FIRE</button>';
+          hud.innerHTML = '<button type="button" class="gitego-tbtn" id="gt-scope">🔭</button><button type="button" class="gitego-tbtn" id="gt-reload">🔄</button><button type="button" class="gitego-tbtn fire" id="gt-fire">🔥<br/>FIRE</button>';
           document.body.appendChild(hud);
+
+          // Auto-hide touch controls whenever a modal (Mission Briefing / Missions List) is open, plus manual 🎮 toggle
+          let userHidden = false;
+          const syncTouchVisibility = () => {
+            const modalOpen = Array.from(document.querySelectorAll('.overlay-modal')).some(
+              (m) => !m.hidden && window.getComputedStyle(m).display !== 'none'
+            );
+            const hide = userHidden || modalOpen;
+            dpad.classList.toggle('hidden-by-ui', hide);
+            hud.classList.toggle('hidden-by-ui', hide);
+          };
+          const mo = new MutationObserver(syncTouchVisibility);
+          document.querySelectorAll('.overlay-modal').forEach((m) => {
+            mo.observe(m, { attributes: true, attributeFilter: ['hidden', 'style', 'class'] });
+          });
+          const tbRight = document.querySelector('.tb-right');
+          if (tbRight) {
+            const toggleBtn = document.createElement('button');
+            toggleBtn.type = 'button';
+            toggleBtn.className = 'gta-btn';
+            toggleBtn.textContent = '🎮 Pad';
+            toggleBtn.title = 'Show / Hide Touch Controls';
+            toggleBtn.addEventListener('click', () => {
+              userHidden = !userHidden;
+              toggleBtn.style.opacity = userHidden ? '0.55' : '1';
+              syncTouchVisibility();
+            });
+            tbRight.appendChild(toggleBtn);
+          }
+          syncTouchVisibility();
           hud.querySelector('#gt-scope').addEventListener('pointerdown', (e) => {
             e.stopPropagation();
             const sb = document.getElementById('scopeBtn');
