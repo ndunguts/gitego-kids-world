@@ -1,0 +1,144 @@
+name: Build Desktop & Mobile Apps
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'desktop-app/**'
+      - 'mobile-android/**'
+      - '.github/workflows/build-apps.yml'
+
+jobs:
+  desktop-linux:
+    name: Desktop (Linux AppImage & deb)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: desktop-app
+        run: npm install
+
+      - name: Build Linux installers
+        working-directory: desktop-app
+        run: npm run build:linux
+
+      - name: Upload Linux installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gitego-Kids-World-Linux
+          path: |
+            desktop-app/dist/*.AppImage
+            desktop-app/dist/*.deb
+
+  desktop-windows:
+    name: Desktop (Windows EXE)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: desktop-app
+        run: npm install
+
+      - name: Build Windows installer
+        working-directory: desktop-app
+        run: npm run build:win
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gitego-Kids-World-Windows
+          path: |
+            desktop-app/dist/*.exe
+
+  desktop-macos:
+    name: Desktop (macOS DMG)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: desktop-app
+        run: npm install
+
+      - name: Build macOS installer
+        working-directory: desktop-app
+        run: npm run build:mac
+
+      - name: Upload macOS installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gitego-Kids-World-macOS
+          path: |
+            desktop-app/dist/*.dmg
+
+  mobile-android:
+    name: Mobile (Android APK)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Capacitor dependencies
+        working-directory: mobile-android
+        run: npm install
+
+      - name: Disable Capacitor telemetry & generate Android project
+        working-directory: mobile-android
+        run: |
+          npx cap telemetry off
+          npx cap add android
+          npx capacitor-assets generate --android
+          npx cap sync android
+
+      - name: Build Android APK (Debug)
+        working-directory: mobile-android/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Rename and stage APK
+        run: |
+          mkdir -p mobile-android/dist
+          cp mobile-android/android/app/build/outputs/apk/debug/app-debug.apk mobile-android/dist/Gitego-Kids-World.apk
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gitego-Kids-World-Android
+          path: mobile-android/dist/Gitego-Kids-World.apk

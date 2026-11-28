@@ -11,6 +11,7 @@ backend/gitego_kids_world.db
 node_modules/
 frontend/dist/
 desktop-app/dist/
+mobile-android/dist/
 mobile-android/android/
 mobile-android/ios/
 

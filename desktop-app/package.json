@@ -2,8 +2,9 @@
   "name": "gitego-kids-world-desktop",
   "version": "1.0.0",
   "description": "GITEGO KIDS WORLD — Desktop Application (Linux, Windows, macOS)",
+  "homepage": "https://gitego-kids-world.onrender.com",
   "main": "main.js",
-  "author": "Gitego Kids World",
+  "author": "Gitego Kids World <admin@gitego.kids>",
   "scripts": {
     "start": "electron .",
     "build:linux": "electron-builder --linux AppImage deb",
@@ -19,6 +20,7 @@
     "linux": {
       "icon": "icon.png",
       "category": "Education",
+      "maintainer": "Gitego Kids World <admin@gitego.kids>",
       "target": ["AppImage", "deb"]
     },
     "win": {
